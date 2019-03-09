@@ -184,6 +184,16 @@ var Timeline = function ( editor ) {
 
 	//
 
+	var loopMark = document.createElement( 'div' );
+	loopMark.style.position = 'absolute';
+	loopMark.style.top = 0;
+	loopMark.style.height = 100 + '%';
+	loopMark.style.width = 0;
+	loopMark.style.background = 'rgba( 255, 255, 255, 0.1 )';
+	loopMark.style.pointerEvents = 'none';
+	loopMark.style.display = 'none';
+	timeline.dom.appendChild( loopMark );
+
 	var timeMark = document.createElement( 'div' );
 	timeMark.style.position = 'absolute';
 	timeMark.style.top = '0px';
@@ -197,6 +207,25 @@ var Timeline = function ( editor ) {
 	function updateTimeMark() {
 
 		timeMark.style.left = ( player.currentTime * scale ) - scroller.scrollLeft - 8 + 'px';
+
+		// TODO Optimise this
+
+		var loop = player.getLoop();
+
+		if ( Array.isArray( loop ) ) {
+
+			var loopStart = loop[ 0 ] * scale;
+			var loopEnd = loop[ 1 ] * scale;
+
+			loopMark.style.display = '';
+			loopMark.style.left = ( loopStart - scroller.scrollLeft ) + 'px';
+			loopMark.style.width = ( loopEnd - loopStart ) + 'px';
+
+		} else {
+
+			loopMark.style.display = 'none';
+
+		}
 
 	}
 

@@ -24,6 +24,7 @@ var Editor = function () {
 
 		// effects
 
+		effectAdded: new Signal(),
 		effectRenamed: new Signal(),
 		effectRemoved: new Signal(),
 		effectSelected: new Signal(),
@@ -79,19 +80,44 @@ var Editor = function () {
 
 		scope.timeline.reset();
 		scope.timeline.sort();
-		scope.timeline.update( scope.player.currentTime );
+
+		try {
+
+			scope.timeline.update( scope.player.currentTime );
+
+		} catch ( e ) {
+
+			console.error( e );
+
+		}
 
 	} );
 
 	this.signals.effectCompiled.add( function () {
 
-		scope.timeline.update( scope.player.currentTime );
+		try {
+
+			scope.timeline.update( scope.player.currentTime );
+
+		} catch ( e ) {
+
+			console.error( e );
+
+		}
 
 	} );
 
 	this.signals.timeChanged.add( function () {
 
-		scope.timeline.update( scope.player.currentTime );
+		try {
+
+			scope.timeline.update( scope.player.currentTime );
+
+		} catch ( e ) {
+
+			console.error( e );
+
+		}
 
 	} );
 
@@ -227,6 +253,7 @@ Editor.prototype = {
 	addEffect: function ( effect ) {
 
 		this.effects.push( effect );
+		this.signals.effectAdded.dispatch( effect );
 
 	},
 
@@ -251,8 +278,17 @@ Editor.prototype = {
 
 	compileEffect: function ( effect ) {
 
-		effect.compile( this.resources, this.player );
-		editor.signals.effectCompiled.dispatch();
+		try {
+
+			effect.compile( this.resources, this.player );
+
+		} catch ( e ) {
+
+			console.error( e );
+
+		}
+
+		this.signals.effectCompiled.dispatch( effect );
 
 	},
 
@@ -281,7 +317,7 @@ Editor.prototype = {
 
 			}
 
-			if ( !bound ) {
+			if ( bound === false ) {
 
 				scope.removeEffect( effect );
 
@@ -299,7 +335,7 @@ Editor.prototype = {
 
 		if ( effect.program === null ) {
 
-			editor.compileEffect( effect );
+			this.compileEffect( effect );
 
 		}
 

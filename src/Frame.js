@@ -48,6 +48,9 @@ var FRAME = {
 				}
 				audio = value;
 			},
+			getLoop: function () {
+				return loop;
+			},
 			setLoop: function ( value ) {
 				loop = value;
 			},
@@ -254,6 +257,7 @@ var FRAME = {
 
 	Timeline: function () {
 
+		var includes = [];
 		var effects = [];
 
 		var animations = [];
@@ -337,17 +341,17 @@ var FRAME = {
 
 				this.loadLibraries( libraries, function () {
 
+					// Includes
+
 					for ( var i = 0; i < json.includes.length; i ++ ) {
 
 						var data = json.includes[ i ];
+						var name = data[ 0 ];
 						var source = data[ 1 ];
 
 						if ( Array.isArray( source ) ) source = source.join( '\n' );
 
-						var script = document.createElement( 'script' );
-						script.id = 'library-' + i;
-						script.textContent = '( function () { ' + source + '} )()';
-						document.head.appendChild( script );
+						includes.push( new FRAME.Effect( name, source ) );
 
 					}
 
@@ -394,6 +398,18 @@ var FRAME = {
 			compile: function ( resources, player ) {
 
 				var animations = this.animations;
+
+				for ( var i = 0, l = includes.length; i < l; i++ ) {
+
+					var include = includes[ i ];
+
+					if ( include.program === null ) {
+
+						include.compile( resources, player );
+
+					}
+
+				}
 
 				for ( var i = 0, l = animations.length; i < l; i ++ ) {
 
